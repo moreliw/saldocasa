@@ -1,51 +1,116 @@
+import { Plus, Receipt, Wallet } from 'lucide-react';
+import Link from 'next/link';
+import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
+import { Skeleton } from '@/components/ui/skeleton';
+import { fetchDashboardSummary } from '@/lib/server-api';
 import { getSession } from '@/lib/session';
+import { CategoryDonut } from './_components/category-donut';
+import { LatestTransactions } from './_components/latest-transactions';
+import { SummaryCards } from './_components/summary-cards';
+
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const session = (await getSession())!; // garantido pelo layout
+  const session = (await getSession())!;
+
+  return (
+    <div className="space-y-8">
+      <PageHeader
+        title={`Olá, ${session.user.name.split(' ')[0]}`}
+        description={`Casa ${session.household.name} — visão do mês atual.`}
+        action={
+          <Button asChild>
+            <Link href="/transactions">
+              <Plus className="h-4 w-4" />
+              Novo lançamento
+            </Link>
+          </Button>
+        }
+      />
+
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent />
+      </Suspense>
+    </div>
+  );
+}
+
+async function DashboardContent() {
+  const data = await fetchDashboardSummary();
+  if (!data) {
+    return (
+      <Card>
+        <EmptyState
+          icon={Wallet}
+          title="Não foi possível carregar"
+          description="Recarregue a página em alguns instantes."
+        />
+      </Card>
+    );
+  }
+
+  const empty = data.totals.txCount === 0;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-          Olá, {session.user.name.split(' ')[0]}
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Casa: <span className="font-medium text-slate-700">{session.household.name}</span>
-        </p>
-      </div>
+      <SummaryCards totals={data.totals} />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Saldo do mês" value="—" />
-        <SummaryCard label="Entradas" value="—" tone="positive" />
-        <SummaryCard label="Saídas" value="—" tone="negative" />
-      </div>
+      {empty ? (
+        <Card>
+          <EmptyState
+            icon={Receipt}
+            title="Comece agora"
+            description="Você ainda não tem lançamentos neste mês. Adicione o primeiro para ver seus números e gráficos aqui."
+            action={
+              <Button asChild>
+                <Link href="/transactions">
+                  <Plus className="h-4 w-4" />
+                  Adicionar lançamento
+                </Link>
+              </Button>
+            }
+          />
+        </Card>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-5">
+          <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Últimos lançamentos</CardTitle>
+              <CardDescription>O que aconteceu por último na casa.</CardDescription>
+            </CardHeader>
+            <LatestTransactions items={data.latestTransactions} />
+          </Card>
 
-      <div className="card">
-        <h2 className="text-base font-semibold text-slate-900">Próximos passos</h2>
-        <p className="mt-1 text-sm text-slate-600">
-          Sua casa foi criada e as categorias e formas de pagamento padrão já estão prontas. As
-          telas de lançamentos, gráficos e relatórios serão liberadas na próxima fase.
-        </p>
-      </div>
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Gastos por categoria</CardTitle>
+              <CardDescription>Distribuição das saídas pagas no mês.</CardDescription>
+            </CardHeader>
+            <CategoryDonut data={data.byCategory} total={data.totals.expense} />
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: 'positive' | 'negative';
-}) {
-  const toneClass =
-    tone === 'positive' ? 'text-emerald-600' : tone === 'negative' ? 'text-red-600' : 'text-slate-900';
+function DashboardSkeleton() {
   return (
-    <div className="card">
-      <div className="text-sm text-slate-500">{label}</div>
-      <div className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</div>
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-28" />
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Skeleton className="h-80 lg:col-span-3" />
+        <Skeleton className="h-80 lg:col-span-2" />
+      </div>
     </div>
   );
 }
+

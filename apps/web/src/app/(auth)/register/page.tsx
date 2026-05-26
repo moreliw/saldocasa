@@ -1,8 +1,13 @@
 'use client';
 
+import { ArrowRight, Home, Lock, Mail, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ApiError, apiJson } from '@/lib/api';
 
 export default function RegisterPage() {
@@ -28,6 +33,7 @@ export default function RegisterPage() {
           householdName: householdName || undefined,
         }),
       });
+      toast.success('Casa criada! Bem-vindo.');
       router.replace('/dashboard');
       router.refresh();
     } catch (err) {
@@ -38,76 +44,94 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="card">
-      <h2 className="mb-1 text-lg font-semibold text-slate-900">Criar conta</h2>
-      <p className="mb-6 text-sm text-slate-500">Comece a organizar a casa em 30 segundos.</p>
-      <form onSubmit={onSubmit} className="space-y-4">
+    <div className="animate-fade-in-up">
+      <h2 className="font-display text-2xl font-semibold tracking-tight text-slate-900">
+        Criar conta
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">Sua casa financeira em 30 segundos.</p>
+
+      <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <div>
-          <label className="label" htmlFor="name">
-            Seu nome
-          </label>
-          <input
-            id="name"
-            required
-            minLength={2}
-            maxLength={80}
-            autoComplete="name"
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <Label htmlFor="name">Seu nome</Label>
+          <div className="relative">
+            <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              id="name"
+              required
+              minLength={2}
+              maxLength={80}
+              autoComplete="name"
+              className="pl-9"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
         </div>
+
         <div>
-          <label className="label" htmlFor="email">
-            E-mail
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            autoComplete="email"
-            className="input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <Label htmlFor="email">E-mail</Label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              className="pl-9"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
         </div>
+
         <div>
-          <label className="label" htmlFor="password">
-            Senha
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            className="input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <p className="mt-1 text-xs text-slate-500">Mínimo 8 caracteres.</p>
+          <Label htmlFor="password">Senha</Label>
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              id="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              className="pl-9"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <p className="mt-1.5 text-xs text-slate-500">Mínimo 8 caracteres.</p>
         </div>
+
         <div>
-          <label className="label" htmlFor="household">
-            Nome da casa <span className="text-slate-400">(opcional)</span>
-          </label>
-          <input
-            id="household"
-            maxLength={80}
-            placeholder="Casa Principal"
-            className="input"
-            value={householdName}
-            onChange={(e) => setHouseholdName(e.target.value)}
-          />
+          <Label htmlFor="household">
+            Nome da casa <span className="font-normal text-slate-400">(opcional)</span>
+          </Label>
+          <div className="relative">
+            <Home className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              id="household"
+              maxLength={80}
+              placeholder="Casa Principal"
+              className="pl-9"
+              value={householdName}
+              onChange={(e) => setHouseholdName(e.target.value)}
+            />
+          </div>
         </div>
+
         {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200">
+            {error}
+          </p>
         )}
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Criando…' : 'Criar conta'}
-        </button>
+
+        <Button type="submit" loading={loading} className="w-full">
+          Criar conta
+          <ArrowRight className="h-4 w-4" />
+        </Button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600">
+
+      <p className="mt-8 text-center text-sm text-slate-600">
         Já tem conta?{' '}
         <Link href="/login" className="font-medium text-slate-900 underline-offset-4 hover:underline">
           Entrar
