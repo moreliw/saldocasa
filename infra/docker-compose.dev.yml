@@ -1,0 +1,17 @@
+name: saldocasa-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: saldocasa-postgres-dev
+    environment:
+      POSTGRES_USER: saldocasa
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: saldocasa
+    ports:
+      - "127.0.0.1:5440:5432"
+    volumes:
+      - saldocasa_pgdata_dev:/var/lib/postgresql/data
+
+volumes:
+  saldocasa_pgdata_dev:
