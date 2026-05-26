@@ -25,7 +25,7 @@ ENV PORT=3010
 ENV HOSTNAME=0.0.0.0
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=build --chown=nextjs:nodejs /app/public ./public 2>/dev/null || true
+COPY --from=build --chown=nextjs:nodejs /app/public ./public
 USER nextjs
 EXPOSE 3010
 ENTRYPOINT ["/sbin/tini","--"]

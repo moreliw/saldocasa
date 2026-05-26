@@ -10,7 +10,9 @@ datasource db {
 
 // Placeholder para Prisma generate não falhar com schema vazio.
 // Será removido na Fase 1 junto com a primeira migration real.
-model _BootstrapPing {
+model BootstrapPing {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
+
+  @@map("_bootstrap_ping")
 }
