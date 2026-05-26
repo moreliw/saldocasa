@@ -1,4 +1,3 @@
-// Schema mínimo para Fase 0. Modelos completos (users, households, transactions etc.) entram na Fase 1.
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,11 +7,220 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Placeholder para Prisma generate não falhar com schema vazio.
-// Será removido na Fase 1 junto com a primeira migration real.
-model BootstrapPing {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+// ===================== ENUMS =====================
 
-  @@map("_bootstrap_ping")
+enum HouseholdRole {
+  OWNER
+  MEMBER
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionStatus {
+  PAID
+  PENDING
+  CANCELLED
+}
+
+enum RecurringFrequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+// ===================== TABLES =====================
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  ownedHouseholds Household[]      @relation("HouseholdOwner")
+  memberships     HouseholdUser[]
+  transactions    Transaction[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model Household {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  currency    String   @default("BRL")
+  ownerUserId String   @map("owner_user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  owner                 User                   @relation("HouseholdOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  members               HouseholdUser[]
+  categories            Category[]
+  paymentMethods        PaymentMethod[]
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  budgets               Budget[]
+  auditLogs             AuditLog[]
+
+  @@index([ownerUserId])
+  @@map("households")
+}
+
+model HouseholdUser {
+  id          String        @id @default(cuid())
+  householdId String        @map("household_id")
+  userId      String        @map("user_id")
+  role        HouseholdRole @default(MEMBER)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, userId])
+  @@index([userId])
+  @@map("household_users")
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  householdId String       @map("household_id")
+  name        String
+  type        CategoryType
+  color       String       @default("#64748b")
+  icon        String?
+  isActive    Boolean      @default(true) @map("is_active")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  household             Household              @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  budgets               Budget[]
+
+  @@unique([householdId, name, type])
+  @@index([householdId, type, isActive])
+  @@map("categories")
+}
+
+model PaymentMethod {
+  id          String   @id @default(cuid())
+  householdId String   @map("household_id")
+  name        String
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  household             Household              @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+
+  @@unique([householdId, name])
+  @@index([householdId, isActive])
+  @@map("payment_methods")
+}
+
+model Transaction {
+  id                     String            @id @default(cuid())
+  householdId            String            @map("household_id")
+  userId                 String            @map("user_id")
+  categoryId             String            @map("category_id")
+  paymentMethodId        String?           @map("payment_method_id")
+  type                   TransactionType
+  description            String
+  amount                 Decimal           @db.Decimal(14, 2)
+  transactionDate        DateTime          @map("transaction_date") @db.Date
+  dueDate                DateTime?         @map("due_date") @db.Date
+  status                 TransactionStatus @default(PAID)
+  notes                  String?
+  isRecurring            Boolean           @default(false) @map("is_recurring")
+  recurringTransactionId String?           @map("recurring_transaction_id")
+  createdAt              DateTime          @default(now()) @map("created_at")
+  updatedAt              DateTime          @updatedAt @map("updated_at")
+  deletedAt              DateTime?         @map("deleted_at")
+
+  household            Household             @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category             Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  paymentMethod        PaymentMethod?        @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  recurringTransaction RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, transactionDate])
+  @@index([householdId, status])
+  @@index([householdId, type, transactionDate])
+  @@index([householdId, categoryId])
+  @@index([householdId, deletedAt])
+  @@map("transactions")
+}
+
+model RecurringTransaction {
+  id              String             @id @default(cuid())
+  householdId     String             @map("household_id")
+  categoryId      String             @map("category_id")
+  paymentMethodId String?            @map("payment_method_id")
+  type            TransactionType
+  description     String
+  amount          Decimal            @db.Decimal(14, 2)
+  frequency       RecurringFrequency
+  dueDay          Int                @map("due_day")
+  startDate       DateTime           @map("start_date") @db.Date
+  endDate         DateTime?          @map("end_date") @db.Date
+  isActive        Boolean            @default(true) @map("is_active")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  household     Household      @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+  transactions  Transaction[]
+
+  @@index([householdId, isActive])
+  @@map("recurring_transactions")
+}
+
+model Budget {
+  id            String   @id @default(cuid())
+  householdId   String   @map("household_id")
+  categoryId    String   @map("category_id")
+  month         Int
+  year          Int
+  plannedAmount Decimal  @map("planned_amount") @db.Decimal(14, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, categoryId, year, month])
+  @@index([householdId, year, month])
+  @@map("budgets")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  householdId String?  @map("household_id")
+  userId      String?  @map("user_id")
+  action      String
+  entity      String
+  entityId    String?  @map("entity_id")
+  oldValue    Json?    @map("old_value")
+  newValue    Json?    @map("new_value")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  household Household? @relation(fields: [householdId], references: [id], onDelete: SetNull)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, createdAt])
+  @@index([entity, entityId])
+  @@map("audit_logs")
 }

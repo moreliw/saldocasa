@@ -44,7 +44,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3010
+      HOSTNAME: 0.0.0.0
       NEXT_PUBLIC_API_URL: https://saldocasa.morelidev.com/api
+      INTERNAL_API_URL: http://api:3011/api
     ports:
       - "127.0.0.1:3010:3010"
     networks: [saldocasa]
