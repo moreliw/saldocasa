@@ -108,7 +108,14 @@ jobs:
             docker compose up -d --remove-orphans
             docker image prune -f
             sleep 5
-            echo "--- health ---"
-            curl -fsS http://127.0.0.1:3011/api/health
-            echo
-            curl -fsSI http://127.0.0.1:3010 | head -1
+            echo "--- smoke tests ---"
+            api_health=$(curl -fsS http://127.0.0.1:3011/api/health)
+            echo "api: $api_health"
+            web_status=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3010/)
+            echo "web /: HTTP $web_status"
+            if [ "$web_status" != "307" ] && [ "$web_status" != "200" ]; then
+              echo "ERRO: web não respondeu OK"; exit 1
+            fi
+            login_status=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3010/login)
+            echo "web /login: HTTP $login_status"
+            [ "$login_status" = "200" ] || { echo "ERRO: /login não respondeu 200"; exit 1; }
