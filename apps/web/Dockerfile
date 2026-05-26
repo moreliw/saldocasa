@@ -3,7 +3,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package.json ./
-RUN npm install --omit=optional --no-audit --no-fund
+RUN npm install --omit=optional --no-audit --no-fund --legacy-peer-deps
 
 # --- build ---
 FROM node:20-alpine AS build
