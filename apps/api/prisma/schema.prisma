@@ -7,3 +7,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// Placeholder para Prisma generate não falhar com schema vazio.
+// Será removido na Fase 1 junto com a primeira migration real.
+model _BootstrapPing {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+}
