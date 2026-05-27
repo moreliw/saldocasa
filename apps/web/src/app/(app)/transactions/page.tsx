@@ -6,6 +6,7 @@ import {
   ArrowUpCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
   Plus,
   Receipt,
   Search,
@@ -131,6 +132,17 @@ export default function TransactionsPage() {
     [filters],
   );
 
+  function exportCsv() {
+    const params = new URLSearchParams();
+    if (filters.q) params.set('q', filters.q);
+    if (filters.type) params.set('type', filters.type);
+    if (filters.status) params.set('status', filters.status);
+    if (filters.categoryId) params.set('categoryId', filters.categoryId);
+    if (filters.from) params.set('from', filters.from);
+    if (filters.to) params.set('to', filters.to);
+    window.location.href = `/api/transactions/export.csv?${params.toString()}`;
+  }
+
   async function deleteTransaction(t: Transaction) {
     if (!confirm(`Excluir "${t.description}"?`)) return;
     try {
@@ -149,10 +161,16 @@ export default function TransactionsPage() {
         title="Lançamentos"
         description="Todas as entradas e saídas da sua casa."
         action={
-          <Button onClick={() => setCreating(true)}>
-            <Plus className="h-4 w-4" />
-            Novo lançamento
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={exportCsv}>
+              <Download className="h-4 w-4" />
+              Exportar
+            </Button>
+            <Button onClick={() => setCreating(true)}>
+              <Plus className="h-4 w-4" />
+              Novo lançamento
+            </Button>
+          </div>
         }
       />
 

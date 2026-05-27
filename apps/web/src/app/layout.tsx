@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Montserrat, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 
@@ -17,10 +17,39 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'saldocasa — controle financeiro doméstico',
-  description: 'Organize as finanças da casa com simplicidade. Entradas, saídas, categorias, orçamentos e relatórios.',
+  title: {
+    default: 'saldocasa — controle financeiro doméstico',
+    template: '%s · saldocasa',
+  },
+  description:
+    'Organize as finanças da casa com simplicidade. Entradas, saídas, categorias, orçamentos e relatórios.',
   applicationName: 'saldocasa',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'saldocasa',
+    statusBarStyle: 'default',
+  },
+  openGraph: {
+    title: 'saldocasa',
+    description: 'Controle financeiro doméstico simples e seguro.',
+    type: 'website',
+    locale: 'pt_BR',
+  },
+};
+
+export const viewport: Viewport = {
   themeColor: '#0f1a2e',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +61,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="top-right"
           toastOptions={{
             classNames: {
-              toast: 'rounded-xl border border-slate-200 bg-white text-slate-900 shadow-elevated',
+              toast:
+                'rounded-xl border border-slate-200 bg-white text-slate-900 shadow-elevated',
             },
           }}
         />

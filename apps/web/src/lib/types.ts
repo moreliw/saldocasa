@@ -1,3 +1,39 @@
+export interface SessionUser {
+  id: string;
+  name: string;
+  email: string;
+}
+export interface SessionHousehold {
+  id: string;
+  name: string;
+  currency: string;
+}
+
+export interface HouseholdMember {
+  id: string;
+  userId: string;
+  role: 'OWNER' | 'MEMBER';
+  joinedAt: string;
+  name: string;
+  email: string;
+}
+
+export interface HouseholdInvite {
+  id: string;
+  email: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface InvitePreview {
+  valid: boolean;
+  reason?: 'not_found' | 'used' | 'expired';
+  email?: string;
+  householdName?: string;
+  expiresAt?: string;
+}
+
 export type CategoryType = 'INCOME' | 'EXPENSE';
 export type TransactionType = 'INCOME' | 'EXPENSE';
 export type TransactionStatus = 'PAID' | 'PENDING' | 'CANCELLED';

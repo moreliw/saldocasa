@@ -8,11 +8,13 @@ import {
   LogOut,
   Menu,
   PieChart,
+  Settings,
   Tag,
   Target,
   Wallet,
   X,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -60,10 +62,15 @@ export function AppShell({
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="group flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-950 ring-1 ring-brand-900/50 transition-transform group-hover:scale-105">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
+            <Link href="/dashboard" className="group flex items-center gap-2.5">
+              <Image
+                src="/brand/logo-mark.png"
+                alt=""
+                width={34}
+                height={34}
+                priority
+                className="transition-transform group-hover:scale-105"
+              />
               <span className="font-display text-base font-semibold tracking-tight text-slate-900">
                 saldocasa
               </span>
@@ -112,6 +119,11 @@ export function AppShell({
               <div className="text-sm font-medium text-slate-900">{session.user.name}</div>
               <div className="text-xs text-slate-500">{session.household.name}</div>
             </div>
+            <Button asChild variant="ghost" size="icon" aria-label="Configurações">
+              <Link href="/settings">
+                <Settings className="h-4 w-4" />
+              </Link>
+            </Button>
             <Button variant="ghost" size="icon" onClick={logout} disabled={loggingOut} aria-label="Sair">
               <LogOut className="h-4 w-4" />
             </Button>

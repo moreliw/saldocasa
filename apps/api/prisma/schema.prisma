@@ -66,6 +66,7 @@ model Household {
 
   owner                 User                   @relation("HouseholdOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   members               HouseholdUser[]
+  invites               HouseholdInvite[]
   categories            Category[]
   paymentMethods        PaymentMethod[]
   transactions          Transaction[]
@@ -75,6 +76,24 @@ model Household {
 
   @@index([ownerUserId])
   @@map("households")
+}
+
+model HouseholdInvite {
+  id            String    @id @default(cuid())
+  householdId   String    @map("household_id")
+  invitedById   String    @map("invited_by_id")
+  email         String
+  token         String    @unique
+  role          HouseholdRole @default(MEMBER)
+  expiresAt     DateTime  @map("expires_at")
+  acceptedAt    DateTime? @map("accepted_at")
+  acceptedById  String?   @map("accepted_by_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId, acceptedAt])
+  @@map("household_invites")
 }
 
 model HouseholdUser {

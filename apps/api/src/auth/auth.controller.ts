@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { AUTH_COOKIE_NAME, AUTH_TOKEN_TTL_SECONDS } from './auth.constants';
@@ -7,6 +7,7 @@ import { CurrentHousehold, CurrentUser } from './decorators/current-user.decorat
 import { Public } from './decorators/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { AuthUser } from './types';
 
 @Controller('auth')
@@ -46,6 +47,11 @@ export class AuthController {
       select: { id: true, name: true, currency: true },
     });
     return { user, household };
+  }
+
+  @Patch('me')
+  updateProfile(@CurrentUser() user: AuthUser, @Body() dto: UpdateProfileDto) {
+    return this.authService.updateProfile(user.id, dto);
   }
 
   private setAuthCookie(res: Response, token: string) {

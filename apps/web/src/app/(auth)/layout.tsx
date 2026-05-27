@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 
@@ -17,12 +18,14 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           }}
         />
         <div className="relative">
-          <div className="inline-flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/20">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            </span>
-            saldocasa
-          </div>
+          <Image
+            src="/brand/logo-mark.png"
+            alt="saldocasa"
+            width={56}
+            height={56}
+            priority
+            className="rounded-2xl bg-white/95 p-1.5 shadow-elevated"
+          />
         </div>
         <div className="relative max-w-md">
           <h2 className="font-display text-3xl font-semibold leading-tight tracking-tight">
@@ -41,9 +44,8 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       {/* Lado direito: form */}
       <div className="flex items-center justify-center px-4 py-12 sm:px-8">
         <div className="w-full max-w-sm">
-          <div className="mb-8 text-center lg:hidden">
-            <h1 className="font-display text-xl font-semibold text-slate-900">saldocasa</h1>
-            <p className="mt-1 text-sm text-slate-500">Controle financeiro da casa</p>
+          <div className="mb-8 flex justify-center lg:hidden">
+            <Image src="/brand/logo-full.png" alt="saldocasa" width={180} height={64} priority />
           </div>
           {children}
         </div>

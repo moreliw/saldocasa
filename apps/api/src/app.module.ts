@@ -7,6 +7,7 @@ import { BudgetsModule } from './budgets/budgets.module';
 import { CategoriesModule } from './categories/categories.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthController } from './health/health.controller';
+import { HouseholdsModule } from './households/households.module';
 import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RecurringTransactionsModule } from './recurring-transactions/recurring-transactions.module';
@@ -24,6 +25,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     BudgetsModule,
     DashboardModule,
     ReportsModule,
+    HouseholdsModule,
   ],
   controllers: [HealthController],
   providers: [

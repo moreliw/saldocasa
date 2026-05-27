@@ -19,4 +19,10 @@ export class RegisterDto {
   @IsString()
   @MaxLength(80)
   householdName?: string;
+
+  /** Se presente, entra direto na household do convite (não cria a própria). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  inviteToken?: string;
 }

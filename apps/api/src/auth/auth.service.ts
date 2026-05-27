@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,6 +15,7 @@ import {
 } from './auth.constants';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { AuthUser, JwtPayload } from './types';
 
 export interface AuthResult {
@@ -33,9 +39,47 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const householdName = (dto.householdName?.trim() || 'Casa Principal').slice(0, 80);
 
-    // Tudo numa transação: usuário + household + membership + seeds.
+    // Caso 1: usuário entrou via convite — vira membro da household existente
+    if (dto.inviteToken) {
+      const invite = await this.prisma.householdInvite.findUnique({
+        where: { token: dto.inviteToken },
+      });
+      if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) {
+        throw new BadRequestException('Convite inválido ou expirado');
+      }
+      const result = await this.prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: { name: dto.name.trim(), email, passwordHash },
+        });
+        await tx.householdUser.create({
+          data: { householdId: invite.householdId, userId: user.id, role: invite.role },
+        });
+        await tx.householdInvite.update({
+          where: { id: invite.id },
+          data: { acceptedAt: new Date(), acceptedById: user.id },
+        });
+        await tx.auditLog.create({
+          data: {
+            householdId: invite.householdId,
+            userId: user.id,
+            action: 'USER_REGISTERED_VIA_INVITE',
+            entity: 'User',
+            entityId: user.id,
+            newValue: { email: user.email, name: user.name, inviteId: invite.id },
+          },
+        });
+        return { user, householdId: invite.householdId };
+      });
+      return {
+        token: await this.signToken(result.user.id, result.user.email),
+        user: { id: result.user.id, email: result.user.email, name: result.user.name },
+        householdId: result.householdId,
+      };
+    }
+
+    // Caso 2: usuário novo cria a própria household + seed
+    const householdName = (dto.householdName?.trim() || 'Casa Principal').slice(0, 80);
     const { user, household } = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: { name: dto.name.trim(), email, passwordHash },
@@ -111,6 +155,37 @@ export class AuthService {
       user: { id: user.id, email: user.email, name: user.name },
       householdId: membership.householdId,
     };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<AuthUser> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException();
+
+    const data: { name?: string; passwordHash?: string } = {};
+
+    if (dto.name !== undefined) {
+      data.name = dto.name.trim();
+    }
+
+    if (dto.newPassword) {
+      if (!dto.currentPassword) {
+        throw new BadRequestException('Senha atual obrigatória para alterar a senha');
+      }
+      const ok = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+      if (!ok) throw new BadRequestException('Senha atual incorreta');
+      data.passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    }
+
+    if (Object.keys(data).length === 0) {
+      return { id: user.id, email: user.email, name: user.name };
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: { id: true, email: true, name: true },
+    });
+    return updated;
   }
 
   private async signToken(userId: string, email: string): Promise<string> {
