@@ -95,6 +95,11 @@ export default function LoginPage() {
           Criar agora
         </Link>
       </p>
+      <p className="mt-3 text-center text-xs text-slate-500">
+        <Link href="/pricing" className="underline-offset-4 hover:underline">
+          Conheça os planos →
+        </Link>
+      </p>
     </div>
   );
 }

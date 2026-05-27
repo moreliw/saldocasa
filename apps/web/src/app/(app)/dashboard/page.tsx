@@ -11,6 +11,7 @@ import { CategoryDonut } from './_components/category-donut';
 import { EvolutionLine } from './_components/evolution-line';
 import { LatestTransactions } from './_components/latest-transactions';
 import { SummaryCards } from './_components/summary-cards';
+import { UpgradeBanner } from './_components/upgrade-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +55,7 @@ async function DashboardContent() {
 
   return (
     <div className="space-y-6">
+      <UpgradeBanner />
       <SummaryCards totals={summary.totals} />
 
       {empty ? (

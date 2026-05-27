@@ -20,6 +20,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { PlanBadge } from '@/components/plan-badge';
 import { apiFetch } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import type { Session } from '@/lib/session';
@@ -114,7 +115,8 @@ export function AppShell({
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <PlanBadge className="hidden sm:inline-flex" />
             <div className="hidden text-right sm:block">
               <div className="text-sm font-medium text-slate-900">{session.user.name}</div>
               <div className="text-xs text-slate-500">{session.household.name}</div>
@@ -142,6 +144,13 @@ export function AppShell({
         {/* Drawer mobile */}
         {open && (
           <div className="border-t border-slate-200 bg-white md:hidden">
+            <div className="container flex items-center justify-between gap-2 border-b border-slate-100 py-3">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium text-slate-900">{session.user.name}</div>
+                <div className="truncate text-xs text-slate-500">{session.household.name}</div>
+              </div>
+              <PlanBadge />
+            </div>
             <nav className="container flex flex-col py-2">
               {NAV.map((item) => {
                 const Icon = item.icon;
