@@ -39,9 +39,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   { className, variant, size, asChild, loading, disabled, children, ...props },
   ref,
 ) {
-  const Comp = asChild ? Slot : 'button';
+  // Quando asChild=true, Radix Slot exige exatamente UM child React element.
+  // Passamos os filhos do consumidor direto; loading state vira só visual via opacity.
+  if (asChild) {
+    return (
+      <Slot
+        ref={ref}
+        className={cn(buttonVariants({ variant, size }), loading && 'pointer-events-none opacity-60', className)}
+        {...props}
+      >
+        {children as React.ReactElement}
+      </Slot>
+    );
+  }
   return (
-    <Comp
+    <button
       ref={ref}
       className={cn(buttonVariants({ variant, size }), className)}
       disabled={disabled || loading}
@@ -49,6 +61,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     >
       {loading && <Loader2 className="h-4 w-4 animate-spin" />}
       {children}
-    </Comp>
+    </button>
   );
 });
