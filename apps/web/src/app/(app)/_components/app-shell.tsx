@@ -62,8 +62,8 @@ export function AppShell({
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-4">
-          <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="group flex items-center gap-2.5">
+          <div className="flex min-w-0 items-center gap-6 lg:gap-8">
+            <Link href="/dashboard" className="group flex shrink-0 items-center gap-2.5">
               <Image
                 src="/brand/logo-mark.png"
                 alt=""
@@ -76,7 +76,7 @@ export function AppShell({
                 saldocasa
               </span>
             </Link>
-            <nav className="hidden gap-1 md:flex">
+            <nav className="hidden gap-0.5 lg:flex">
               {NAV.map((item) => {
                 const active =
                   pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -88,14 +88,14 @@ export function AppShell({
                     aria-current={active ? 'page' : undefined}
                     onClick={(e) => item.soon && e.preventDefault()}
                     className={cn(
-                      'relative inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors',
+                      'relative inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm transition-colors',
                       active
                         ? 'text-slate-900'
                         : 'text-slate-500 hover:text-slate-900',
                       item.soon && 'cursor-not-allowed text-slate-400 hover:text-slate-400',
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 shrink-0" />
                     {item.label}
                     {item.soon && (
                       <span className="ml-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">
@@ -115,12 +115,19 @@ export function AppShell({
             </nav>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <PlanBadge className="hidden sm:inline-flex" />
-            <div className="hidden text-right sm:block">
-              <div className="text-sm font-medium text-slate-900">{session.user.name}</div>
-              <div className="text-xs text-slate-500">{session.household.name}</div>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="hidden min-w-0 items-center gap-3 sm:flex">
+              <div className="min-w-0 text-right leading-tight">
+                <div className="truncate whitespace-nowrap text-sm font-medium text-slate-900">
+                  {session.user.name}
+                </div>
+                <div className="truncate whitespace-nowrap text-xs text-slate-500">
+                  {session.household.name}
+                </div>
+              </div>
+              <PlanBadge />
             </div>
+            <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" />
             <Button asChild variant="ghost" size="icon" aria-label="Configurações">
               <Link href="/settings">
                 <Settings className="h-4 w-4" />
@@ -132,7 +139,7 @@ export function AppShell({
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setOpen((v) => !v)}
               aria-label="Menu"
             >
@@ -143,7 +150,7 @@ export function AppShell({
 
         {/* Drawer mobile */}
         {open && (
-          <div className="border-t border-slate-200 bg-white md:hidden">
+          <div className="border-t border-slate-200 bg-white lg:hidden">
             <div className="container flex items-center justify-between gap-2 border-b border-slate-100 py-3">
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium text-slate-900">{session.user.name}</div>
