@@ -3,11 +3,13 @@
 import { motion } from 'framer-motion';
 import {
   ArrowLeftRight,
+  Repeat,
   LayoutDashboard,
   LogOut,
   Menu,
   PieChart,
   Tag,
+  Target,
   Wallet,
   X,
 } from 'lucide-react';
@@ -20,12 +22,14 @@ import { apiFetch } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import type { Session } from '@/lib/session';
 
-const NAV = [
+const NAV: Array<{ href: string; label: string; icon: typeof LayoutDashboard; soon?: boolean }> = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Lançamentos', icon: ArrowLeftRight },
+  { href: '/recurring', label: 'Recorrências', icon: Repeat },
+  { href: '/budgets', label: 'Orçamentos', icon: Target },
   { href: '/categories', label: 'Categorias', icon: Tag },
   { href: '/payment-methods', label: 'Formas de pagamento', icon: Wallet },
-  { href: '/reports', label: 'Relatórios', icon: PieChart, soon: true },
+  { href: '/reports', label: 'Relatórios', icon: PieChart },
 ];
 
 export function AppShell({

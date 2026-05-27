@@ -6,9 +6,10 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchDashboardSummary } from '@/lib/server-api';
+import { fetchDashboardSummary, fetchMonthlyEvolution } from '@/lib/server-api';
 import { getSession } from '@/lib/session';
 import { CategoryDonut } from './_components/category-donut';
+import { EvolutionLine } from './_components/evolution-line';
 import { LatestTransactions } from './_components/latest-transactions';
 import { SummaryCards } from './_components/summary-cards';
 
@@ -40,8 +41,11 @@ export default async function DashboardPage() {
 }
 
 async function DashboardContent() {
-  const data = await fetchDashboardSummary();
-  if (!data) {
+  const [summary, evolution] = await Promise.all([
+    fetchDashboardSummary(),
+    fetchMonthlyEvolution(6),
+  ]);
+  if (!summary) {
     return (
       <Card>
         <EmptyState
@@ -53,11 +57,12 @@ async function DashboardContent() {
     );
   }
 
-  const empty = data.totals.txCount === 0;
+  const empty = summary.totals.txCount === 0;
+  const hasEvolution = (evolution?.some((m) => m.income > 0 || m.expense > 0)) ?? false;
 
   return (
     <div className="space-y-6">
-      <SummaryCards totals={data.totals} />
+      <SummaryCards totals={summary.totals} />
 
       {empty ? (
         <Card>
@@ -76,23 +81,35 @@ async function DashboardContent() {
           />
         </Card>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-5">
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle>Últimos lançamentos</CardTitle>
-              <CardDescription>O que aconteceu por último na casa.</CardDescription>
-            </CardHeader>
-            <LatestTransactions items={data.latestTransactions} />
-          </Card>
+        <>
+          <div className="grid gap-6 lg:grid-cols-5">
+            <Card className="lg:col-span-3">
+              <CardHeader>
+                <CardTitle>Últimos lançamentos</CardTitle>
+                <CardDescription>O que aconteceu por último na casa.</CardDescription>
+              </CardHeader>
+              <LatestTransactions items={summary.latestTransactions} />
+            </Card>
 
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Gastos por categoria</CardTitle>
-              <CardDescription>Distribuição das saídas pagas no mês.</CardDescription>
-            </CardHeader>
-            <CategoryDonut data={data.byCategory} total={data.totals.expense} />
-          </Card>
-        </div>
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>Gastos por categoria</CardTitle>
+                <CardDescription>Distribuição das saídas pagas no mês.</CardDescription>
+              </CardHeader>
+              <CategoryDonut data={summary.byCategory} total={summary.totals.expense} />
+            </Card>
+          </div>
+
+          {hasEvolution && evolution && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Evolução de 6 meses</CardTitle>
+                <CardDescription>Entradas e saídas pagas mês a mês.</CardDescription>
+              </CardHeader>
+              <EvolutionLine data={evolution} />
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
@@ -110,7 +127,7 @@ function DashboardSkeleton() {
         <Skeleton className="h-80 lg:col-span-3" />
         <Skeleton className="h-80 lg:col-span-2" />
       </div>
+      <Skeleton className="h-64" />
     </div>
   );
 }
-
