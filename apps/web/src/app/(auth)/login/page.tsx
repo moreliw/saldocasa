@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { ArrowRight, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +10,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ApiError, apiJson } from '@/lib/api';
+
+const item = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+};
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,12 +45,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="animate-fade-in-up">
-      <h2 className="font-display text-2xl font-semibold tracking-tight text-slate-900">Entrar</h2>
-      <p className="mt-1 text-sm text-slate-500">Acesse sua casa financeira.</p>
+    <motion.div variants={container} initial="hidden" animate="show">
+      <motion.h2
+        variants={item}
+        className="font-display text-3xl font-semibold tracking-tight text-slate-900"
+      >
+        Entrar
+      </motion.h2>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-5">
-        <div>
+      <motion.form variants={item} onSubmit={onSubmit} className="mt-8 space-y-5">
+        <motion.div variants={item}>
           <Label htmlFor="email">E-mail</Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -54,9 +69,9 @@ export default function LoginPage() {
               placeholder="voce@email.com"
             />
           </div>
-        </div>
+        </motion.div>
 
-        <div>
+        <motion.div variants={item}>
           <Label htmlFor="password">Senha</Label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -72,21 +87,27 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
-        </div>
+        </motion.div>
 
         {error && (
-          <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200">
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200"
+          >
             {error}
-          </p>
+          </motion.p>
         )}
 
-        <Button type="submit" loading={loading} className="w-full">
-          Entrar
-          <ArrowRight className="h-4 w-4" />
-        </Button>
-      </form>
+        <motion.div variants={item}>
+          <Button type="submit" loading={loading} className="w-full">
+            Entrar
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </motion.div>
+      </motion.form>
 
-      <p className="mt-8 text-center text-sm text-slate-600">
+      <motion.p variants={item} className="mt-8 text-center text-sm text-slate-600">
         Não tem conta?{' '}
         <Link
           href="/register"
@@ -94,12 +115,7 @@ export default function LoginPage() {
         >
           Criar agora
         </Link>
-      </p>
-      <p className="mt-3 text-center text-xs text-slate-500">
-        <Link href="/pricing" className="underline-offset-4 hover:underline">
-          Conheça os planos →
-        </Link>
-      </p>
-    </div>
+      </motion.p>
+    </motion.div>
   );
 }

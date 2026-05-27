@@ -80,8 +80,8 @@ export default function RegisterPage() {
         }
       }
 
-      toast.success('Casa criada! Bem-vindo.');
-      router.replace('/dashboard');
+      toast.success('Casa criada! Escolha seu plano.');
+      router.replace('/pricing');
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Falha no cadastro');
