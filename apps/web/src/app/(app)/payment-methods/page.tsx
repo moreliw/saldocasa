@@ -52,7 +52,7 @@ export default function PaymentMethodsPage() {
         title="Formas de pagamento"
         description="Pix, débito, crédito, boleto — registre como costuma pagar."
         action={
-          <Button onClick={() => setCreating(true)}>
+          <Button onClick={() => setCreating(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Nova forma
           </Button>

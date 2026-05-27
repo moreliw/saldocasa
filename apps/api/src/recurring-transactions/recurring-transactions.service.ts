@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, RecurringFrequency, TransactionType } from '@prisma/client';
+import { PlanService } from '../billing/plan.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateRecurringTransactionDto,
@@ -9,7 +10,10 @@ import {
 
 @Injectable()
 export class RecurringTransactionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly planService: PlanService,
+  ) {}
 
   list(householdId: string) {
     return this.prisma.recurringTransaction.findMany({
@@ -23,6 +27,7 @@ export class RecurringTransactionsService {
   }
 
   async create(householdId: string, userId: string, dto: CreateRecurringTransactionDto) {
+    await this.planService.assertCanUseRecurring(householdId);
     await this.assertCategory(householdId, dto.categoryId, dto.type);
     if (dto.paymentMethodId) await this.assertPaymentMethod(householdId, dto.paymentMethodId);
 

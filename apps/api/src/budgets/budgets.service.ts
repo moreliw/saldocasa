@@ -5,12 +5,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PlanService } from '../billing/plan.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBudgetDto, ListBudgetsQueryDto, UpdateBudgetDto } from './dto/budget.dto';
 
 @Injectable()
 export class BudgetsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly planService: PlanService,
+  ) {}
 
   async list(householdId: string, query: ListBudgetsQueryDto) {
     const now = new Date();
@@ -63,6 +67,7 @@ export class BudgetsService {
   }
 
   async create(householdId: string, dto: CreateBudgetDto) {
+    await this.planService.assertCanUseBudgets(householdId);
     await this.assertCategory(householdId, dto.categoryId);
     try {
       return await this.prisma.budget.create({

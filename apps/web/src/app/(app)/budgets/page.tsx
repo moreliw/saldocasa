@@ -76,22 +76,22 @@ export default function BudgetsPage() {
         title="Orçamentos"
         description="Defina um teto de gasto por categoria e acompanhe o consumo do mês."
         action={
-          <Button onClick={() => setCreating(true)}>
+          <Button onClick={() => setCreating(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Novo orçamento
           </Button>
         }
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center sm:justify-start">
         <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1 shadow-card">
-          <Button variant="ghost" size="sm" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
+          <Button variant="ghost" size="icon" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
             ◀
           </Button>
-          <span className="min-w-[160px] text-center text-sm font-medium capitalize text-slate-700">
+          <span className="min-w-[140px] text-center text-sm font-medium capitalize text-slate-700">
             {monthLabel(year, month)}
           </span>
-          <Button variant="ghost" size="sm" onClick={() => shiftMonth(1)} aria-label="Próximo mês">
+          <Button variant="ghost" size="icon" onClick={() => shiftMonth(1)} aria-label="Próximo mês">
             ▶
           </Button>
         </div>

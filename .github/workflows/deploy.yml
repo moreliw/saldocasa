@@ -84,13 +84,15 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_TAG,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,JWT_SECRET,GHCR_USER,GHCR_TOKEN
+          envs: IMAGE_TAG,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,JWT_SECRET,STRIPE_SECRET_KEY,STRIPE_WEBHOOK_SECRET,GHCR_USER,GHCR_TOKEN
           script: |
             set -euo pipefail
             cd /opt/saldocasa
@@ -101,6 +103,8 @@ jobs:
             POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             POSTGRES_DB=${POSTGRES_DB}
             JWT_SECRET=${JWT_SECRET}
+            STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+            STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
             EOF
             chmod 600 .env
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin

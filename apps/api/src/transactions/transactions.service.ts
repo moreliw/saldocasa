@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PlanService } from '../billing/plan.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateTransactionDto,
@@ -12,7 +13,10 @@ const MAX_PAGE_SIZE = 100;
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly planService: PlanService,
+  ) {}
 
   async list(householdId: string, query: ListTransactionsQueryDto) {
     const page = Math.max(1, query.page ?? 1);
@@ -74,6 +78,7 @@ export class TransactionsService {
   }
 
   async create(householdId: string, userId: string, dto: CreateTransactionDto) {
+    await this.planService.assertCanCreateTransaction(householdId);
     await this.assertCategory(householdId, dto.categoryId, dto.type);
     if (dto.paymentMethodId) await this.assertPaymentMethod(householdId, dto.paymentMethodId);
 

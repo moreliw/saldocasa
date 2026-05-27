@@ -105,14 +105,16 @@ export default function RecurringPage() {
         title="Recorrências"
         description="Cadastre lançamentos fixos (aluguel, salário, assinaturas) e gere os do mês com um clique."
         action={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={generateMonth} loading={generating}>
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Button variant="secondary" onClick={generateMonth} loading={generating} className="flex-1 sm:flex-none">
               <Sparkles className="h-4 w-4" />
-              Gerar deste mês
+              <span className="hidden sm:inline">Gerar deste mês</span>
+              <span className="sm:hidden">Gerar mês</span>
             </Button>
-            <Button onClick={() => setCreating(true)}>
+            <Button onClick={() => setCreating(true)} className="flex-1 sm:flex-none">
               <Plus className="h-4 w-4" />
-              Nova recorrência
+              <span className="hidden sm:inline">Nova recorrência</span>
+              <span className="sm:hidden">Nova</span>
             </Button>
           </div>
         }
@@ -147,58 +149,53 @@ export default function RecurringPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
-                'group surface flex items-center gap-4 px-5 py-4',
+                'group surface px-4 py-4 sm:px-5',
                 !r.isActive && 'opacity-60',
               )}
             >
-              <span
-                className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                  r.type === 'INCOME' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600',
-                )}
-              >
-                {r.type === 'INCOME' ? (
-                  <ArrowUpCircle className="h-5 w-5" />
-                ) : (
-                  <ArrowDownCircle className="h-5 w-5" />
-                )}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="truncate font-medium text-slate-900">{r.description}</span>
-                  {!r.isActive && <Badge tone="muted">pausada</Badge>}
-                </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
-                  <span className="inline-flex items-center gap-1">
-                    <span
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: r.category.color }}
-                    />
-                    {r.category.name}
-                  </span>
-                  <span>·</span>
-                  <span>{FREQ_LABEL[r.frequency]}</span>
-                  <span>·</span>
-                  <span>Dia {r.dueDay}</span>
-                  {r.paymentMethod && (
-                    <>
-                      <span>·</span>
-                      <span>{r.paymentMethod.name}</span>
-                    </>
+              <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+                <span
+                  className={cn(
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                    r.type === 'INCOME' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600',
                   )}
+                >
+                  {r.type === 'INCOME' ? (
+                    <ArrowUpCircle className="h-5 w-5" />
+                  ) : (
+                    <ArrowDownCircle className="h-5 w-5" />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium text-slate-900">{r.description}</span>
+                    {!r.isActive && <Badge tone="muted">pausada</Badge>}
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+                    <span className="inline-flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: r.category.color }} />
+                      {r.category.name}
+                    </span>
+                    <span>·</span>
+                    <span>{FREQ_LABEL[r.frequency]} dia {r.dueDay}</span>
+                    {r.paymentMethod && (
+                      <>
+                        <span>·</span>
+                        <span>{r.paymentMethod.name}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="text-right">
                 <div
                   className={cn(
-                    'font-medium tabular-nums',
+                    'shrink-0 text-right font-medium tabular-nums',
                     r.type === 'INCOME' ? 'text-emerald-600' : 'text-rose-600',
                   )}
                 >
                   {r.type === 'INCOME' ? '+' : '-'} {formatMoney(r.amount)}
                 </div>
               </div>
-              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="mt-3 flex items-center justify-end gap-1 sm:mt-0 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                 <Button variant="ghost" size="sm" onClick={() => toggleActive(r)} className="text-xs">
                   {r.isActive ? 'Pausar' : 'Ativar'}
                 </Button>

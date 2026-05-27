@@ -161,23 +161,24 @@ export default function TransactionsPage() {
         title="Lançamentos"
         description="Todas as entradas e saídas da sua casa."
         action={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={exportCsv}>
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Button variant="secondary" onClick={exportCsv} className="flex-1 sm:flex-none">
               <Download className="h-4 w-4" />
-              Exportar
+              <span className="hidden sm:inline">Exportar</span>
             </Button>
-            <Button onClick={() => setCreating(true)}>
+            <Button onClick={() => setCreating(true)} className="flex-1 sm:flex-none">
               <Plus className="h-4 w-4" />
-              Novo lançamento
+              <span className="hidden sm:inline">Novo lançamento</span>
+              <span className="sm:hidden">Novo</span>
             </Button>
           </div>
         }
       />
 
-      {/* Filtros */}
+      {/* Filtros — grid responsivo */}
       <Card className="p-4">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[200px] flex-1">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <div className="lg:col-span-2">
             <Label htmlFor="q">Buscar</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -191,7 +192,7 @@ export default function TransactionsPage() {
             </div>
           </div>
 
-          <div className="w-32">
+          <div>
             <Label>Tipo</Label>
             <Select
               value={filters.type || 'ALL'}
@@ -206,7 +207,7 @@ export default function TransactionsPage() {
             </Select>
           </div>
 
-          <div className="w-36">
+          <div>
             <Label>Status</Label>
             <Select
               value={filters.status || 'ALL'}
@@ -222,7 +223,7 @@ export default function TransactionsPage() {
             </Select>
           </div>
 
-          <div className="w-44">
+          <div className="sm:col-span-2 lg:col-span-2">
             <Label>Categoria</Label>
             <Select
               value={filters.categoryId || 'ALL'}
@@ -240,7 +241,7 @@ export default function TransactionsPage() {
             </Select>
           </div>
 
-          <div className="w-36">
+          <div>
             <Label htmlFor="from">De</Label>
             <Input
               id="from"
@@ -250,7 +251,7 @@ export default function TransactionsPage() {
             />
           </div>
 
-          <div className="w-36">
+          <div>
             <Label htmlFor="to">Até</Label>
             <Input
               id="to"
@@ -261,10 +262,12 @@ export default function TransactionsPage() {
           </div>
 
           {hasFilters && (
-            <Button variant="ghost" onClick={clearFilters} className="text-slate-500">
-              <X className="h-4 w-4" />
-              Limpar
-            </Button>
+            <div className="sm:col-span-2 lg:col-span-6">
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-slate-500">
+                <X className="h-4 w-4" />
+                Limpar filtros
+              </Button>
+            </div>
           )}
         </div>
       </Card>

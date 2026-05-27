@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
+import { PlanService } from '../billing/plan.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AcceptInviteDto, CreateInviteDto } from './dto/invite.dto';
 
@@ -13,7 +14,10 @@ const INVITE_TTL_DAYS = 7;
 
 @Injectable()
 export class HouseholdsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly planService: PlanService,
+  ) {}
 
   async getMembers(householdId: string) {
     const members = await this.prisma.householdUser.findMany({
@@ -63,6 +67,7 @@ export class HouseholdsService {
 
   async createInvite(householdId: string, userId: string, dto: CreateInviteDto) {
     await this.assertOwner(householdId, userId);
+    await this.planService.assertCanInvite(householdId);
     const email = dto.email.toLowerCase().trim();
     const expiresAt = new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000);
 

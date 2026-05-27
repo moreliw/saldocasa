@@ -13,6 +13,7 @@ import {
 import type { Response } from 'express';
 import { CurrentHousehold, CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types';
+import { PlanService } from '../billing/plan.service';
 import {
   CreateTransactionDto,
   ListTransactionsQueryDto,
@@ -27,7 +28,10 @@ function csvCell(value: string): string {
 
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly service: TransactionsService) {}
+  constructor(
+    private readonly service: TransactionsService,
+    private readonly planService: PlanService,
+  ) {}
 
   @Get()
   list(@CurrentHousehold() householdId: string, @Query() query: ListTransactionsQueryDto) {
@@ -41,6 +45,7 @@ export class TransactionsController {
     @Query() query: ListTransactionsQueryDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    await this.planService.assertCanExport(householdId);
     // baixa tudo respeitando os filtros, sem paginação
     const all = await this.service.list(householdId, { ...query, page: 1, pageSize: 10000 });
     const filename = `transacoes_${new Date().toISOString().slice(0, 10)}.csv`;

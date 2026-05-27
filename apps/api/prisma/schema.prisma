@@ -14,6 +14,20 @@ enum HouseholdRole {
   MEMBER
 }
 
+enum SubscriptionTier {
+  FREE
+  PRO
+  PRO_PLUS
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  TRIALING
+}
+
 enum CategoryType {
   INCOME
   EXPENSE
@@ -63,6 +77,13 @@ model Household {
   ownerUserId String   @map("owner_user_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Billing
+  subscriptionTier     SubscriptionTier    @default(FREE) @map("subscription_tier")
+  subscriptionStatus   SubscriptionStatus? @map("subscription_status")
+  stripeCustomerId     String?             @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?             @unique @map("stripe_subscription_id")
+  currentPeriodEnd     DateTime?           @map("current_period_end")
 
   owner                 User                   @relation("HouseholdOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   members               HouseholdUser[]

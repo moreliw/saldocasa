@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Crown, Home, Mail, Shield, User, Users } from 'lucide-react';
+import { CreditCard, Crown, Home, Mail, Shield, User, Users } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -28,12 +29,25 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Configurações" description="Perfil, família e detalhes da casa." />
+      <PageHeader
+        title="Configurações"
+        description="Perfil, família e detalhes da casa."
+        action={
+          <Button asChild variant="secondary" className="w-full sm:w-auto">
+            <Link href="/settings/billing">
+              <CreditCard className="h-4 w-4" />
+              Assinatura
+            </Link>
+          </Button>
+        }
+      />
 
-      <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-card">
-        <TabBtn id="profile" current={tab} onSelect={setTab} icon={User}>Perfil</TabBtn>
-        <TabBtn id="family" current={tab} onSelect={setTab} icon={Users}>Família</TabBtn>
-        <TabBtn id="about" current={tab} onSelect={setTab} icon={Home}>Sobre a casa</TabBtn>
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
+        <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-card">
+          <TabBtn id="profile" current={tab} onSelect={setTab} icon={User}>Perfil</TabBtn>
+          <TabBtn id="family" current={tab} onSelect={setTab} icon={Users}>Família</TabBtn>
+          <TabBtn id="about" current={tab} onSelect={setTab} icon={Home}>Sobre</TabBtn>
+        </div>
       </div>
 
       <motion.div

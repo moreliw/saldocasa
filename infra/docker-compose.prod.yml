@@ -32,6 +32,9 @@ services:
       API_PORT: 3011
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
       JWT_SECRET: ${JWT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      APP_PUBLIC_URL: https://saldocasa.morelidev.com
     ports:
       - "127.0.0.1:3011:3011"
     networks: [saldocasa]

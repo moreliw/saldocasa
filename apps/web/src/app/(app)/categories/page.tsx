@@ -60,7 +60,7 @@ export default function CategoriesPage() {
         title="Categorias"
         description="Organize seus lançamentos por categoria. Crie quantas precisar."
         action={
-          <Button onClick={() => setCreating(true)}>
+          <Button onClick={() => setCreating(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Nova categoria
           </Button>

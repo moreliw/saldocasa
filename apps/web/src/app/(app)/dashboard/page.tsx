@@ -1,11 +1,10 @@
-import { Plus, Receipt, Wallet } from 'lucide-react';
-import Link from 'next/link';
+import { Receipt, Wallet } from 'lucide-react';
 import { Suspense } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
+import { NewTransactionButton } from '@/components/new-transaction-button';
 import { fetchDashboardSummary, fetchMonthlyEvolution } from '@/lib/server-api';
 import { getSession } from '@/lib/session';
 import { CategoryDonut } from './_components/category-donut';
@@ -23,14 +22,7 @@ export default async function DashboardPage() {
       <PageHeader
         title={`Olá, ${session.user.name.split(' ')[0]}`}
         description={`Casa ${session.household.name} — visão do mês atual.`}
-        action={
-          <Button asChild>
-            <Link href="/transactions">
-              <Plus className="h-4 w-4" />
-              Novo lançamento
-            </Link>
-          </Button>
-        }
+        action={<NewTransactionButton />}
       />
 
       <Suspense fallback={<DashboardSkeleton />}>
@@ -70,14 +62,7 @@ async function DashboardContent() {
             icon={Receipt}
             title="Comece agora"
             description="Você ainda não tem lançamentos neste mês. Adicione o primeiro para ver seus números e gráficos aqui."
-            action={
-              <Button asChild>
-                <Link href="/transactions">
-                  <Plus className="h-4 w-4" />
-                  Adicionar lançamento
-                </Link>
-              </Button>
-            }
+            action={<NewTransactionButton label="Adicionar lançamento" />}
           />
         </Card>
       ) : (
