@@ -222,9 +222,15 @@ export class AdminService {
         oldValue: {
           tier: household.subscriptionTier,
           status: household.subscriptionStatus,
-          currentPeriodEnd: household.currentPeriodEnd,
+          currentPeriodEnd: household.currentPeriodEnd?.toISOString() ?? null,
         },
-        newValue: data,
+        newValue: {
+          tier: updated.subscriptionTier,
+          status: updated.subscriptionStatus,
+          currentPeriodEnd: updated.currentPeriodEnd?.toISOString() ?? null,
+          stripeSubscriptionId: updated.stripeSubscriptionId,
+          clearStripe: dto.clearStripe ?? false,
+        },
       },
     });
 
