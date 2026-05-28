@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Montserrat, Inter } from 'next/font/google';
+import { Montserrat, Inter, Fraunces } from 'next/font/google';
 import { Toaster } from 'sonner';
 
 const display = Montserrat({
@@ -14,6 +14,14 @@ const sans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+});
+
+const serif = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+  weight: ['400', '500'],
+  style: ['italic', 'normal'],
 });
 
 export const metadata: Metadata = {
@@ -54,7 +62,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${display.variable} ${sans.variable}`}>
+    <html lang="pt-BR" className={`${display.variable} ${sans.variable} ${serif.variable}`}>
       <body className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
         {children}
         <Toaster
