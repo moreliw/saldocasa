@@ -1,24 +1,12 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { SubscriptionTier } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SuperAdmin } from '../auth/decorators/super-admin.decorator';
-import { SuperAdminGuard } from '../auth/guards/super-admin.guard';
 import type { AuthUser } from '../auth/types';
 import { AdminService } from './admin.service';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 
 @SuperAdmin()
-@UseGuards(SuperAdminGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly admin: AdminService) {}

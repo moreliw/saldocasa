@@ -32,16 +32,22 @@ export class BillingService implements OnModuleInit {
    * Na inicialização: garante que os produtos e prices existem no Stripe.
    * Idempotente via lookup_key. Roda só se houver STRIPE_SECRET_KEY.
    */
-  async onModuleInit() {
+  onModuleInit() {
     if (!this.stripe) return;
-    try {
-      await this.ensureProducts();
-      this.logger.log(`Billing pronto: PRO=${this.priceIds.PRO} PRO_PLUS=${this.priceIds.PRO_PLUS}`);
-    } catch (err) {
-      this.logger.error(
-        `Falha ao sincronizar produtos no Stripe: ${err instanceof Error ? err.message : err}`,
-      );
-    }
+    // Sincroniza com a Stripe em background — NÃO bloqueia o bootstrap.
+    // Se a Stripe estiver lenta/instável, a API ainda responde ao /health.
+    // Endpoints que dependem do priceId fazem fallback automático.
+    void this.ensureProducts()
+      .then(() => {
+        this.logger.log(
+          `Billing pronto: PRO=${this.priceIds.PRO} PRO_PLUS=${this.priceIds.PRO_PLUS}`,
+        );
+      })
+      .catch((err) => {
+        this.logger.error(
+          `Falha ao sincronizar produtos no Stripe: ${err instanceof Error ? err.message : err}`,
+        );
+      });
   }
 
   private async ensureProducts() {
