@@ -3,7 +3,7 @@ import type { CashFlowPoint, DashboardSummary } from './types';
 
 const INTERNAL_API = process.env.INTERNAL_API_URL ?? 'http://api:3011/api';
 
-async function serverFetch<T>(path: string): Promise<T | null> {
+export async function serverFetch<T>(path: string): Promise<T | null> {
   const jar = await cookies();
   const cookieHeader = jar.getAll().map((c) => `${c.name}=${c.value}`).join('; ');
   if (!cookieHeader) return null;

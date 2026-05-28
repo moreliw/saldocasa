@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <PageHeader
         title={`Olá, ${session.user.name.split(' ')[0]}`}
-        description={`Casa ${session.household.name} — visão do mês atual.`}
+        description={`Casa ${session.household?.name ?? '—'} — visão do mês atual.`}
         action={<NewTransactionButton />}
       />
 

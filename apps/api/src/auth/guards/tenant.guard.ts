@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { SUPER_ADMIN_KEY } from '../decorators/super-admin.decorator';
 import type { AuthenticatedRequest } from '../types';
 
 /**
@@ -23,6 +24,12 @@ export class TenantGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
+    const isSuperAdminRoute = this.reflector.getAllAndOverride<boolean>(SUPER_ADMIN_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isSuperAdminRoute) return true; // SuperAdminGuard cuida disso
+
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     if (!req.user) return true; // JwtAuthGuard já teria barrado; deixa passar pra não mascarar erro real
 
@@ -34,6 +41,8 @@ export class TenantGuard implements CanActivate {
     });
 
     if (memberships.length === 0) {
+      // Super admin pode não ter household — deixa passar sem req.householdId.
+      if (req.user.isSuperAdmin) return true;
       throw new ForbiddenException('Usuário não pertence a nenhum household');
     }
 

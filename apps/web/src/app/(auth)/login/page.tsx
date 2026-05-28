@@ -33,9 +33,12 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await apiJson('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      const res = await apiJson<{ user: { isSuperAdmin?: boolean } }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
       toast.success('Bem-vindo de volta!');
-      router.replace('/dashboard');
+      router.replace(res.user.isSuperAdmin ? '/admin' : '/dashboard');
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Falha ao entrar');

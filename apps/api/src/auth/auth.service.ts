@@ -21,7 +21,7 @@ import type { AuthUser, JwtPayload } from './types';
 export interface AuthResult {
   token: string;
   user: AuthUser;
-  householdId: string;
+  householdId: string | null;
 }
 
 @Injectable()
@@ -73,7 +73,12 @@ export class AuthService {
       });
       return {
         token: await this.signToken(result.user.id, result.user.email),
-        user: { id: result.user.id, email: result.user.email, name: result.user.name },
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
+          isSuperAdmin: false,
+        },
         householdId: result.householdId,
       };
     }
@@ -127,7 +132,7 @@ export class AuthService {
 
     return {
       token: await this.signToken(user.id, user.email),
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, isSuperAdmin: user.isSuperAdmin },
       householdId: household.id,
     };
   }
@@ -147,13 +152,19 @@ export class AuthService {
       orderBy: { createdAt: 'asc' },
       select: { householdId: true },
     });
-    if (!membership) {
+    // Super admin pode logar sem ter household — vai direto pra /admin
+    if (!membership && !user.isSuperAdmin) {
       throw new UnauthorizedException('Usuário sem household');
     }
     return {
       token: await this.signToken(user.id, user.email),
-      user: { id: user.id, email: user.email, name: user.name },
-      householdId: membership.householdId,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isSuperAdmin: user.isSuperAdmin,
+      },
+      householdId: membership?.householdId ?? null,
     };
   }
 
@@ -177,13 +188,13 @@ export class AuthService {
     }
 
     if (Object.keys(data).length === 0) {
-      return { id: user.id, email: user.email, name: user.name };
+      return { id: user.id, email: user.email, name: user.name, isSuperAdmin: user.isSuperAdmin };
     }
 
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data,
-      select: { id: true, email: true, name: true },
+      select: { id: true, email: true, name: true, isSuperAdmin: true },
     });
     return updated;
   }

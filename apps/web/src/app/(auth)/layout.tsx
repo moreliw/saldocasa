@@ -5,7 +5,7 @@ import { AuthBrandPanel } from './brand-panel';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
-  if (session) redirect('/dashboard');
+  if (session) redirect(session.user.isSuperAdmin ? '/admin' : '/dashboard');
 
   return (
     <div className="relative grid min-h-screen lg:grid-cols-2">

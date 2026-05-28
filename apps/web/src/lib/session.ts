@@ -4,6 +4,7 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
+  isSuperAdmin: boolean;
 }
 
 export interface SessionHousehold {
@@ -14,7 +15,7 @@ export interface SessionHousehold {
 
 export interface Session {
   user: SessionUser;
-  household: SessionHousehold;
+  household: SessionHousehold | null;
 }
 
 const INTERNAL_API = process.env.INTERNAL_API_URL ?? 'http://api:3011/api';

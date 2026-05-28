@@ -3,7 +3,7 @@ import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { AUTH_COOKIE_NAME, AUTH_TOKEN_TTL_SECONDS } from './auth.constants';
 import { AuthService } from './auth.service';
-import { CurrentHousehold, CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -41,11 +41,19 @@ export class AuthController {
   }
 
   @Get('me')
-  async me(@CurrentUser() user: AuthUser, @CurrentHousehold() householdId: string) {
-    const household = await this.prisma.household.findUnique({
-      where: { id: householdId },
-      select: { id: true, name: true, currency: true },
+  async me(@CurrentUser() user: AuthUser) {
+    // Super admin pode não ter household — devolve household: null nesse caso.
+    const membership = await this.prisma.householdUser.findFirst({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'asc' },
+      select: { householdId: true },
     });
+    const household = membership
+      ? await this.prisma.household.findUnique({
+          where: { id: membership.householdId },
+          select: { id: true, name: true, currency: true },
+        })
+      : null;
     return { user, household };
   }
 

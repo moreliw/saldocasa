@@ -122,7 +122,7 @@ export function AppShell({
                   {session.user.name}
                 </div>
                 <div className="truncate whitespace-nowrap text-xs text-slate-500">
-                  {session.household.name}
+                  {session.household?.name ?? '—'}
                 </div>
               </div>
               <PlanBadge />
@@ -154,7 +154,7 @@ export function AppShell({
             <div className="container flex items-center justify-between gap-2 border-b border-slate-100 py-3">
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium text-slate-900">{session.user.name}</div>
-                <div className="truncate text-xs text-slate-500">{session.household.name}</div>
+                <div className="truncate text-xs text-slate-500">{session.household?.name ?? '—'}</div>
               </div>
               <PlanBadge />
             </div>

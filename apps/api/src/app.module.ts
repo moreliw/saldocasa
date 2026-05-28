@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { SuperAdminGuard } from './auth/guards/super-admin.guard';
 import { TenantGuard } from './auth/guards/tenant.guard';
 import { BillingModule } from './billing/billing.module';
 import { BudgetsModule } from './budgets/budgets.module';
@@ -28,10 +30,12 @@ import { TransactionsModule } from './transactions/transactions.module';
     ReportsModule,
     HouseholdsModule,
     BillingModule,
+    AdminModule,
   ],
   controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: SuperAdminGuard },
     { provide: APP_GUARD, useClass: TenantGuard },
   ],
 })
